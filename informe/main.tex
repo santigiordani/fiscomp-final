@@ -1,0 +1,80 @@
+\documentclass[a4paper, 12pt]{article}
+
+% Datos del documento
+\title{Trabajo final de física computacional}
+\author{El mono}
+\date{}
+
+% Bibliografía
+\usepackage[
+    backend=biber,
+    style=alphabetic,
+]{biblatex}
+\addbibresource{biblio.bib}
+
+% Paquetes
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+\usepackage[margin = 1in]{geometry}
+
+% Commandos
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\tauint}{\tau_\text{int}}
+\newcommand{\tauexp}{\tau_\text{exp}}
+
+\begin{document}
+
+% Títulos
+\maketitle
+
+\begin{abstract}
+    Descripción del trabajo.
+\end{abstract}
+
+\section{Introducción y motivación}
+
+Nuestra intención es usar integración monte carlo para calcular observables de un sistema termodinámico. Esto requiere muestrear en espacios de estados (los ensambles) enormes. En general, demasiado grandes para hacer muestreo directo o {\it importance sampling}. Necesitamos una forma de tomar muestras de una distribución en espacios grandes, en este contexto entra Markov Chain Monte Carlo.
+
+Estudiamos MCMC de \cite{schachinger2007mcmc, mcelreath2016statistical, klenke2007probability}. Tiene muchísimas variantes, como Metrópolis, Glauber, Heat bath, Swendsen, Wolff (ver \cite{janke2012montecarlo, metropolis1953equation}) pensadas para esquivar ciertos problemas cuando la distribución que queremos samplear está cerca de un punto crítico; o Gibbs, Hamilton (ver \cite{klenke2007probability, mcelreath2016statistical}) pensadas para generar muestras de forma más eficiente (más adelante explicamos en qué sentido).
+
+El algoritmo consiste en generar una cadena de markov cuya distribución invariante sea la deseada. Es una idea brillante, pero justamente por su naturaleza tiene un par de problemas importantes: Primero, pasa un tiempo hasta que la cadena alcanza la distribución invariante, por lo que las primeras muestras deben ser descartadas, esto se conoce como el {\it burn-in}. Segundo, las muestras no son independientes entre si, estan {\it autocorrelacionados}, esto resulta en que estamos subestimando la varianza de la integral y debemos corregirla.
+
+Hay tests para estudiar estos problemas (ver \cite{vivekanada2020convergence, mcelreath2016statistical, schachinger2007mcmc}), en particular, McElreath menciona que R (un software reconocido en estadistica) reporta el {\it tiempo integrado de autocorrelación} $\tauint$ y el $\hat{R}$ de Gelman-Rubin (ver \cite{gelman1992inference}). Es por esto que nos decantamos por estos tests.
+
+La idea del trabajo es estudiar estos fenómenos, con esa excusa, vamos a programar metrópolis y gibbs y usarlos en el modelo de Ising. Vamos a medirles el $\tauint$, el $\hat{R}$ y el $\tauexp$ también.
+
+\section{Preliminares}
+
+Pequeña introducción diciendo que vamos a describir brevemente los algoritmos y los tests. Mi idea es que en esta sección se entiendda por qué existe el Gibbs sampler y cómo funcionan los tests.
+
+\subsection{Algoritmos de MCMC}
+
+Aca describimos un poco metrópolis, aunque ya lo hicimos en el TP 4. Tambien describimos Gibbs sampler, que la idea es usar la información de las distribuciones marginales para hacer mas efectivo el sampleo.
+
+\subsection{Tests}
+
+En este lugar destacamos que los tests se tienen que hacer sobre una función escalar de la muestra, no se pueden hacer sobre la muestra directamente porque el espacio de estados podría no tener suficiente estructura ($\R$, por ejemplo, tiene producto, distancia, etc. Suficiente para hablar de correlación). Nosotros vamos a usar, como observable, la magnetización, porque distingue bien si la muestra es bimodal o no. Estoy considerando agregar la energía al analisis, pero creo que no se gana mucho con eso.
+
+Aca describimos, para empezar, el $\hat{R}$, que es un test para el {\it burn-in}. Luego hablamos de la autocorrelación (que se mide igual siempre, no es que se necesite un test específico, mas que nada se aproxima la autocor posta con el estimador estandar) y quiero agregar una pequeña discusión sobre el {\it gap espectral} de un proceso de markov, que nos garantiza la existencia de $\tauexp$, que también puede usarse para estimar el burn-in.
+
+\subsection{Implementación}
+
+Implementamos nosotros mismos las simulaciones, estan en \href{https://github.com/santigiordani/fiscomp-final.git}{este} github (es publico así que deberían poder verlo sin problema). Generamos los números aleatorios con el Mersenne Twister (ver \cite{matsumoto1998mersenne}), detalle que podría ser de interes. Tratamos de dejar todo prolijito y documentado en el código.
+
+\section{Resultados}
+
+Generamos TAL y TAL con TAL parametros y bla bla. Quiero tomar una temperatura cercana a la crítica pero inferior, así la distribución objetivo es bimodal y la magnetización resulta un buen observable para comprobar que las cadenas de markov esten funcionando correctamente. Mas adelante puedo repetir el experimento con otras temperaturas.\\
+
+Una vez fijados los parámetros (tamaño del modelo, temperatura de la distribución), todo lo que tenemos que hacer es generar muestras y hacerles los tests correspondientes. Imagino que en esta sección habrá, entonces, tablas comparando los valores de $\hat{R}$, $\tauint$ y $\tauexp$ para ambos algoritmos (Metrópolis y Gibbs sampler), quizás para varias temperaturas. Tal vez agregue también calculos de complejidad algoritmica y tiempos de computo (no aporta mucho, pero para efecto dramático...)
+
+\section{Discusión}
+
+Esperamos que Gibbs saque jugo de conocer, justamente, las distribuciones marginales de lo que esta sampleando (esa es la joda del Gibbs sampler) y trabaje mucho mas rápido. Honestamente no espero que tenga tiempos de autocorrelación diferentes ni un $\hat{R}$ distinto.
+
+\section{Conclusiones}
+
+Ni idea no programé nada todavía.
+
+\printbibliography
+
+\end{document}
