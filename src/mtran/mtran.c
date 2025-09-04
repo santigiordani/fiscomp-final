@@ -21,7 +21,7 @@ void mtran_set(mtran_state *state, uint32_t seed) {
 
 }
 
-double mtran(void *state) {
+double mtsran(void *state) {
 
     // Estado del generador
     mtran_state *s = (mtran_state *) state;
@@ -62,7 +62,7 @@ double mtran(void *state) {
 
 }
 
-double mtrandom() {
+double mtran() {
 
     // Creamos e inicializamos un estado
     static int initialized = 0;
@@ -74,6 +74,6 @@ double mtrandom() {
     }
 
     // Generamos un número y lo devolvemos
-    return mtran(&default_state);
+    return mtsran(&default_state);
     
 }

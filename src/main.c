@@ -1,17 +1,27 @@
 #include <stdio.h>
+
 #include <mtran.h>
+#include <modelo.h>
+
 
 
 int main() {
 
-    printf("Hello world!\n");
+    printf(" [TEST] Creando un modelo\n");
 
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            printf("%4.2f  ", mtrandom());
-        }
-        printf("\n");
-    }
+    // Definimos parámetros y reservamos espacio
+    double T = 1.1; int n = 16; short mat[n * n];
+
+    // Creamos el modelo
+    modelo m = {T, n, mat};
+
+    printf(" [TEST] Inicializamos el modelo\n");
+
+    // Inicializamos el modelo
+    modelo_init(&m);
+
+    // Imprimimos el modelo en pantalla
+    modelo_print(&m);
 
     return 0;
 

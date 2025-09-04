@@ -9,8 +9,8 @@ Para medir el burn-in usamos el $\tau_\text{exp}$ y el estimador $\hat{R}$ de
 Gelman-Rubin; y para medir el tiempo de autocorrelación usamos el _running_
 _autocorrelation estimator_. Estos estimadores se calculan sobre una función
 de la muestra (es decir, sobre un observable del sistema termodinámico). Para
-esto elegimos la magnetización promedio, por ser un buen indicador de la bi-
-modalidad de la distribución de Boltzman.
+esto elegimos la magnetización promedio, por ser un buen indicador de la 
+bimodalidad de la distribución de Boltzman.
 
 # Documentación
 

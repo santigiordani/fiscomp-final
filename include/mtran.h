@@ -45,16 +45,16 @@ void mtran_set(mtran_state *state, uint32_t seed);
  * @param state Estado con el que generar el número
  * @return Un número aleatorio con distribución U[0, 1]
  */
-double mtran(void *state);
+double mtsran(void *state);
 
 /**
  * @brief Versión sin parámetros del Mersenne Twister
  * 
- * @note  Llama a mtran con un estado static
+ * @note  Llama a mtsran con un estado static
  * 
  * @return Un número aleatorio con distribución U[0, 1]
  */
-double mtrandom();
+double mtran();
 
 
 #endif
