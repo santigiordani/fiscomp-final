@@ -40,14 +40,14 @@ typedef struct {
  * @brief Inicializamos el modelo de Ising con espines aleatorios
  * 
  * @note  Usamos mtran, que tiene estado static y no es thread-safe
- * @param m Modelo a inicializar
+ * @param m Puntero al modelo
  */
 void modelo_init(modelo *m);
 
 /**
  * @brief Imprimimos el modelo en pantalla
  * 
- * @param m Modelo a imprimir
+ * @param m Puntero al modelo
  */
 void modelo_print(modelo *m);
  
@@ -55,7 +55,7 @@ void modelo_print(modelo *m);
  * @brief Cambiamos el estado del modelo según el algoritmo de Metrópolis
  * 
  * @note  Usamos mtran, que tiene estado static y no es thread-safe
- * @param m Modelo
+ * @param m Puntero al modelo
  */
 void modelo_mstep(modelo *m);
 
@@ -63,21 +63,37 @@ void modelo_mstep(modelo *m);
  * @brief Cambiamos el estado del modelo según el Gibbs sampler
  * 
  * @note  Usamos mtran, que tiene estado static y no es thread-safe
- * @param m Modelo
+ * @param m Puntero al modelo
  */
 void modelo_gstep(modelo *m);
- 
+
+ /**
+ * @brief Hacemos un sweep del modelo según el algoritmo de Metrópolis
+ * 
+ * @note  Usamos mtran, que tiene estado static y no es ghread-safe
+ * @param m Puntero al modelo
+ */
+void modelo_msweep(modelo *m);
+
+/**
+ * @brief Hacemos un sweep del modelo según el Gibbs sampler
+ * 
+ * @note  Usamos mtran, que tiene estado static y no es ghread-safe
+ * @param m Puntero al modelo
+ */
+void modelo_gsweep(modelo *m);
+
 /**
  * @brief Calculamos la magnetización promedio del sistema
  * 
- * @param m Modelo
+ * @param m Puntero al modelo
  */
 double modelo_get_m(modelo *m);
 
 /**
  * @brief Calculamos la energía del sistema
  * 
- * @param m Modelo
+ * @param m Puntero al modelo
  */
 double modelo_get_E(modelo *m);
 

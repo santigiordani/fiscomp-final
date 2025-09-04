@@ -64,6 +64,14 @@ void modelo_gstep(modelo *m) {
 
 }
 
+void modelo_msweep(modelo *m) {
+    for (int n2 = m->n * m->n, i = 0; i < n2; ++i) modelo_mstep(m);
+}
+
+void modelo_gsweep(modelo *m) {
+    for (int n2 = m->n * m->n, i = 0; i < n2; ++i) modelo_gstep(m);
+}
+
 double modelo_get_m(modelo *m) {
 
     int sum = 0;
