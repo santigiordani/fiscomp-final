@@ -1,6 +1,7 @@
 # Compilador y flags
 CC := gcc
 CFLAGS := -Wall -Wextra -O2 -Iinclude
+LDLIBS := -lm
 
 # Carpetas
 SRC_DIR := src
@@ -22,7 +23,7 @@ all: $(TARGET)
 # Link final
 $(TARGET): $(OBJS)
 	@echo " [LINK] $@"
-	@$(CC) $(OBJS) -o $@
+	@$(CC) $(OBJS) -o $@ $(LDLIBS)
 
 # Compilación de cada .c a .o, replicando estructura
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
