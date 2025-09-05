@@ -5,10 +5,25 @@
 #include <modelo.h>
 
 
+/*
+    En el futuro, estaría bueno armar una versión multi-observable de estas
+    mismas funciones.
+*/
+
+
 /**
- * En el futuro, estaría bueno armar una versión multi-observable de estas
- * mismas funciones.
+ * @struct gr_burnin_data
+ * @brief  Struct para almacenar datos del burn-in
+ * 
+ * @note   No está terminado, eventualmente vamos a agregar al struct las cosas
+ *         que vayamos necesitando.
  */
+typedef struct {
+    int n;              // Tamaño de las cadenas
+    int m;              // Número de cadenas
+    int iter;           // Número de iteraciones que tardo el modelo
+    double Rhat;        // Valor final de Rhat
+} gr_burnin_data;
 
 
 /**

@@ -39,7 +39,7 @@ Estudiamos MCMC de \cite{schachinger2007mcmc, mcelreath2016statistical, klenke20
 
 El algoritmo consiste en generar una cadena de markov cuya distribución invariante sea la deseada. Es una idea brillante, pero justamente por su naturaleza tiene un par de problemas importantes: Primero, pasa un tiempo hasta que la cadena alcanza la distribución invariante, por lo que las primeras muestras deben ser descartadas, esto se conoce como el {\it burn-in}. Segundo, las muestras no son independientes entre si, estan {\it autocorrelacionados}, esto resulta en que estamos subestimando la varianza de la integral y debemos corregirla.
 
-Hay tests para estudiar estos problemas (ver \cite{vivekanada2020convergence, mcelreath2016statistical, schachinger2007mcmc}), en particular, McElreath menciona que R (un software reconocido en estadistica) reporta el {\it tiempo integrado de autocorrelación} $\tauint$ y el $\hat{R}$ de Gelman-Rubin (ver \cite{gelman1992inference}). Es por esto que nos decantamos por estos tests.
+Hay tests para estudiar estos problemas (ver \cite{vivekanada2020convergence, mcelreath2016statistical, schachinger2007mcmc}), en particular, McElreath menciona que R (un software reconocido en estadistica) reporta el {\it tiempo integrado de autocorrelación} $\tauint$ y el $\hat{R}$ de Gelman-Rubin (ver \cite{gelman1992inference, gelman2013bayesian}). Es por esto que nos decantamos por estos tests.
 
 La idea del trabajo es estudiar estos fenómenos, con esa excusa, vamos a programar metrópolis y gibbs y usarlos en el modelo de Ising. Vamos a medirles el $\tauint$, el $\hat{R}$ y el $\tauexp$ también.
 
@@ -57,6 +57,8 @@ En este lugar destacamos que los tests se tienen que hacer sobre una función es
 
 Aca describimos, para empezar, el $\hat{R}$, que es un test para el {\it burn-in}. Luego hablamos de la autocorrelación (que se mide igual siempre, no es que se necesite un test específico, mas que nada se aproxima la autocor posta con el estimador estandar) y quiero agregar una pequeña discusión sobre el {\it gap espectral} de un proceso de markov, que nos garantiza la existencia de $\tauexp$, que también puede usarse para estimar el burn-in.
 
+Mencionemos también que en \cite{brooks1998general} tenemos un $\hat{R}$ multivaluado, para varios tests a la vez, pero que no lo implemento porque involucra calcular la inversa de una matriz de covarianza y no quiero programar inversas. Aunque me da un poco de lástima porque podríamos usar múltiples observables para garantizar la convergencia de la cadena de markov si lo implementara.
+
 \subsection{Implementación}
 
 Implementamos nosotros mismos las simulaciones, estan en \href{https://github.com/santigiordani/fiscomp-final.git}{este} github (es publico así que deberían poder verlo sin problema). Generamos los números aleatorios con el Mersenne Twister (ver \cite{matsumoto1998mersenne}), detalle que podría ser de interes. Tratamos de dejar todo prolijito y documentado en el código.
@@ -73,7 +75,11 @@ La gracia sería por ahí hacerlo adaptativo me imagino... Bueno de todas formas
 
 Para temperaturas de 2, 2.5 ni hablar, incremente $n$ hasta valores de 9000 y la $\hat{R}$ era demasiado alta, no convergía nunca la magnetización, sería sencillamente que la distribución de Boltzman para esa temperatura en el modelo de ising no se puede muestrear así! Lo que me lleva a proponer una variación: podríamos agregar un selector de signo antes de muestrear los espines, y ver si esto soluciona el problema (habría qeu chequear las cuentas para confirmar que no tenemos que cambiar la implementación de los pasos).
 
-Para temperaturas de 2.6 las cosas mas o menos funcionaban, con un $n$ de 512 apenas converge, hay que esperar un buen rato. Con temperaturas de 2.7 ya estamos viendo cosas mejores, converge en unos 20 pasos con $n = 128$.
+Para temperaturas de 2.6 las cosas mas o menos funcionaban, con un $n$ de 512 apenas converge, hay que esperar un buen rato. Con temperaturas de 2.7 ya estamos viendo cosas mejores, converge en unos 20 pasos con $n = 128$. Estas observaciones son cosas que Gelman y Rubin ya nos adelantaban en su trabajo, sus resultados son, por supuestos, asintóticos con $n \to \infty$ y su sugerencia para problemas multimodales como el nuestro es {\it cambiar la forma en la que se genera la distribución}. Algo que puede solucionar esto es incorporar un multiplicador aleatorio para los espines, pero (aunque me de curiosidad) este trabajo no es sobre eso, sino sobre las diferencias entre metrópolis y gibbs. Aunque, por supuesto, estoy aprendiendo un montón sobre otras cosas tambien.
+
+Para $m = 8$ (hasta ahora trabajábamos con 16, pero es al pedo) y $n = 2^{14}$ tenemos convergencia en 2 pasos. Si bajamos esto a $n = 2^{13}$ tenemos convergencia en 5 pasos. Si bajamos a $2^12$ tenemos convergencia en 42 pasos. Es muy interesante. Como [CONCLUSION] es claro que si $n$ no supera el tiempo de autocorrelación entonces el $\hat{R}$ no puede converger nunca.
+
+Vamos a leer el libro mas reciente de Gelman, a ver si me da una mano. En el libro \cite{gelman2013bayesian} Gelman habla de los tests no en un sentido de aplicarlos en un rden y demas, son tests, vos los aplicas como se te ocurre y si todos dan bien entonces estamos en orden. Lo importante es que ellos mismos recomiendan que haya al menos 5 muestras {\it efectivamente independientes} en el buffer con el que calculamos $\hat{R}$, de forma que $n \sim 5\tauint$ es una buena regla de pulgar! En este punto mi trabajo ya se esta volviendo mas sobre los métodos de testeo que sobre los algoritmos y sus resultados justamente... pero bueno, creo que igual sirve, y que igual esta interesante. De todas formas, no lo considero contenido jugoso, porque son recomendaciones que no estan debidamente justificadas (solo con sentido común), a mi me gustaría que el contenido real de mi trabajo estuviera basado en demostraciones, no en recomendaciones de estadistas.
 
 \section{Discusión}
 
