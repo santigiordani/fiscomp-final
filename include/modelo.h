@@ -35,6 +35,13 @@ typedef struct {
     short *mat;         // Matriz de espines
 } modelo;
 
+/**
+ * @typedef observable
+ * @brief   Tipo de dato para una función que toma un modelo y calcula un
+ *          valor sin efectos secundarios.
+ */
+typedef double (*observable)(const modelo *);
+
 
 /**
  * @brief Inicializamos el modelo de Ising con espines aleatorios
@@ -88,14 +95,14 @@ void modelo_gsweep(modelo *m);
  * 
  * @param m Puntero al modelo
  */
-double modelo_get_m(modelo *m);
+double modelo_get_m(const modelo *m);
 
 /**
  * @brief Calculamos la energía del sistema
  * 
  * @param m Puntero al modelo
  */
-double modelo_get_E(modelo *m);
+double modelo_get_E(const modelo *m);
 
 
 #endif // MODELO_H

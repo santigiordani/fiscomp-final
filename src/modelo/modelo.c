@@ -72,7 +72,7 @@ void modelo_gsweep(modelo *m) {
     for (int n2 = m->n * m->n, i = 0; i < n2; ++i) modelo_gstep(m);
 }
 
-double modelo_get_m(modelo *m) {
+double modelo_get_m(const modelo *m) {
 
     int sum = 0;
     for (int i = 0; i < m->n; ++i) {
@@ -85,7 +85,7 @@ double modelo_get_m(modelo *m) {
 
 }
 
-double modelo_get_E(modelo *m) {
+double modelo_get_E(const modelo *m) {
 
     int sum = 0;
     for (int i = 0; i < m->n; ++i) {
