@@ -7,19 +7,11 @@
 
 
 // Funciones de prueba
-void test_sweep();
+void test_sweep(double T, int L);
 //void test_gr();
 
 /*
     En un futuro (cercano) me gustaría armar un modulo a parte con las pruebas
-*/
-
-/*
-    En un futuro (cercano) me gustaría delegar la responsabilidad de reservar
-    espacio al modelo_init (lo que conlleva hacer un modelo_free).
-
-    Esto haría las cosas mas lentas, pero facilitaría mucho laburar con las
-    simulaciones. Ademas, debería agregar checks para ver si ptr == NULL
 */
 
 
@@ -27,14 +19,17 @@ int main() {
 
     /*
         Parámetros del modelo
+
+        En un futuro (cercano) quiero poder leer estos parametros de un archivo
+        de configuración, o que el usuario los entre por consola.
     */
     double T = 1.5;         // Temperatura (adimensionalizada)
     int L = 16;             // Lado de la matriz de partículas
-    int m = 16;             // Cantidad de cadenas para Rhat
-    int n = 128;            // Longitud de las cadenas para Rhat
+    //int m = 16;             // Cantidad de cadenas para Rhat
+    //int n = 128;            // Longitud de las cadenas para Rhat
 
     // Test
-    test_sweep;//(T, L, m, n);
+    test_sweep(T, L);
 
     return 0;
 
@@ -72,33 +67,22 @@ void test_gr(double T, int L, int m, int n) {
  * @brief Creamos un modelo, lo inicializamos y hacemos varios sweeps, mostrando
  *        los estados generados en pantalla.
  * 
- * @note  Hay que cambiar el tamaño del modelo de n a L
- *        Hay que cambiar el nombre del modelo de m a mod
+ * @param T Temperatura (adimensionalizada)
+ * @param L Lado de la matriz de partículas
  */
-void test_sweep() {
+void test_sweep(double T, int L) {
 
-    printf(" [TEST] Creando un modelo\n");
-
-    // Definimos parámetros y reservamos espacio
-    double T = 1.5; int n = 16; short mat[n * n];
-
-    // Creamos el modelo
-    modelo m = {T, n, mat};
-
-    printf(" [TEST] Inicializamos el modelo\n");
-
-    // Inicializamos el modelo
-    modelo_init(&m);
+    modelo *mod = modelo_init(T, L);
 
     // Limpiamos la pantalla (el if es para evitar un Warning unused value)
     if(system("clear")) {}
 
     // Damos varios pasos con Metrópolis
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 10000; ++i) {
 
         // Damos un paso y lo mostramos
-        modelo_gsweep(&m);
-        modelo_print(&m);
+        modelo_gsweep(mod);
+        modelo_print(mod);
 
         // Mostramos el buffer por .1 segundos
         fflush(stdout);
