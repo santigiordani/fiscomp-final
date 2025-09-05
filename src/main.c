@@ -24,11 +24,11 @@ int main() {
         En un futuro (cercano) quiero poder leer estos parametros de un archivo
         de configuración, o que el usuario los entre por consola.
     */
-    double T = 1.5;         // Temperatura (adimensionalizada)
+    double T = 2.7;         // Temperatura (adimensionalizada)
     int L = 16;             // Lado de la matriz de partículas
     int m = 16;             // Cantidad de cadenas para Rhat
     int n = 128;            // Longitud de las cadenas para Rhat
-    double tol = 1.1023;    // Tolerancia para el Rhat
+    double tol = 1.05;      // Tolerancia para el Rhat
 
     // Test
     test_gr(T, L, m, n, tol);

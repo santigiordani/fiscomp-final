@@ -67,6 +67,14 @@ Generamos TAL y TAL con TAL parametros y bla bla. Quiero tomar una temperatura c
 
 Una vez fijados los parámetros (tamaño del modelo, temperatura de la distribución), todo lo que tenemos que hacer es generar muestras y hacerles los tests correspondientes. Imagino que en esta sección habrá, entonces, tablas comparando los valores de $\hat{R}$, $\tauint$ y $\tauexp$ para ambos algoritmos (Metrópolis y Gibbs sampler), quizás para varias temperaturas. Tal vez agregue también calculos de complejidad algoritmica y tiempos de computo (no aporta mucho, pero para efecto dramático...)
 
+Las cosas van queriendo pero noto un par de cosas raras. Para elegir el número de cadenas en Gelman-Rubin no tenemos mucho problema, deberían ser suficientes cadenas como para estar seguros que algunas tienen una moda y otras otra. El problema es con la longitud de esas cadenas, porque lo que esperamos es que la varianza intra cadena termine pareciendose a al inter cadena. Esto para algunas temperaturas no pasa ni a palo, entonces, cómo sabemos que $n$ tomar? Estamos obligados a que sea enorme!!! Para evitar este prolblema podemos subir la temperatura (un poco deshonesto) o aumentar $n$. Claramente el valor del $n$ va a terminar dependiendo de la autocorrelación! Pero para ciertas temperaturas de esta distribución, la autocorrelación es sencillamente infinita.
+
+La gracia sería por ahí hacerlo adaptativo me imagino... Bueno de todas formas pongamos algunas observaciones:
+
+Para temperaturas de 2, 2.5 ni hablar, incremente $n$ hasta valores de 9000 y la $\hat{R}$ era demasiado alta, no convergía nunca la magnetización, sería sencillamente que la distribución de Boltzman para esa temperatura en el modelo de ising no se puede muestrear así! Lo que me lleva a proponer una variación: podríamos agregar un selector de signo antes de muestrear los espines, y ver si esto soluciona el problema (habría qeu chequear las cuentas para confirmar que no tenemos que cambiar la implementación de los pasos).
+
+Para temperaturas de 2.6 las cosas mas o menos funcionaban, con un $n$ de 512 apenas converge, hay que esperar un buen rato. Con temperaturas de 2.7 ya estamos viendo cosas mejores, converge en unos 20 pasos con $n = 128$.
+
 \section{Discusión}
 
 Esperamos que Gibbs saque jugo de conocer, justamente, las distribuciones marginales de lo que esta sampleando (esa es la joda del Gibbs sampler) y trabaje mucho mas rápido. Honestamente no espero que tenga tiempos de autocorrelación diferentes ni un $\hat{R}$ distinto.

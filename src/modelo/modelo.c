@@ -110,7 +110,7 @@ double modelo_get_m(const modelo *mod) {
         }
     }
 
-    return (double) sum;
+    return (double) sum / (mod->L * mod->L);
 
 }
 

@@ -6,23 +6,14 @@
 #include <gelman-rubin.h>
 
 
-/**
- * @note Para trabajar un poco mas cómodos, definimos un tipo booleano.
- */
-typedef enum { FALSE = 0, TRUE = 1 } boolean;
+#define MAXITER 200 // Máxima cantidad de iteraciones para estabilizar Rhat
 
 
 double gr_get_Rhat(double **data, int m, int n) {
 
-    // Por si el arreglo dinámico no funciona
-    printf(" [DEBUG] Estamos por reservar espacio para las medias.\n");
-
     // Reservamos espacio para las medias
     double medias[m], media_global = 0;
 
-    // Por si el arreglo dinámico no funciona
-    printf(" [DEBUG] Reservamos espacio para las medias exitosamente.\n");
-    
     // Calculamos las medias
     for (int i = 0; i < m; ++i) {
 
@@ -77,29 +68,15 @@ void gr_init(modelo **mods, int m, void (*sweep)(modelo *), observable o, int n,
         Debería cambiar tanto esta función como rg_get_Rhat.
     */
 
-    printf(" [DEBUG] Entramos en gr_init()\n");
-    fflush(stdout);
-
     // Reservamos espacio para los observables
     double *data[m];
     for (int i = 0; i < m; i++) {
         data[i] = malloc(n * sizeof(double));
     }
 
-    for (int i = 0; i < m; i++) {
-        printf(" [DEBUG] El puntero %2d de data apunta hacia %p.\n", i, data[i]);
-    }
-
-    printf(" [DEBUG] Reservamos espacio para los observables.\n");
-    fflush(stdout);
-
-    // Loop de burn in
-    int iter = 0;
-    double Rhat = 0;
-    do {
-
-        printf(" [DEBUG] Iniciamos la iteración %3d.\n", iter++);
-        printf(" [DEBUG] El último test dio %.2f.\n", Rhat);
+    // Loop de burn-in
+    double Rhat;
+    for (int k = 0; k < MAXITER; ++k) {
 
         // Muestreamos n observables de cada una de las m cadenas
         for (int j = 0; j < n; ++j) {
@@ -114,18 +91,23 @@ void gr_init(modelo **mods, int m, void (*sweep)(modelo *), observable o, int n,
             }
         }
 
-        printf(" [DEBUG] Terminamos todos los sweeps, estamos listos para testear.\n");
+        // Calculamos Rhat
+        if ((Rhat = gr_get_Rhat(data, m, n)) < tol) {
 
-    } while ((Rhat = gr_get_Rhat(data, m, n)) > tol);
+            // Mostramos el resultado final
+            printf("\033[1A\033[2K \033[32m[GELMAN-RUBIN]\033[37m Burn-in completo.    Iteración: %3d     R-hat: %.3f.\n", k + 1, Rhat);
+            return;
 
-    printf(" [DEBUG] Salimos del while de Gelman-Rubin.\n");
+        } else {
 
-    // Liberamos el espacio reservado
-    for (int i = 0; i < m; i++) {
-        printf(" [DEBUG] Liberamos el puntero %2d con valor %p.\n", i, data[i]);
-        free(data[i]);
+            // Mostramos el progreso en pantalla
+            printf("\033[1A\033[2K \033[33m[GELMAN-RUBIN]\033[37m Burn-in en progreso. Iteración: %3d/%d R-hat: %.3f.\n", k + 1, MAXITER, Rhat);
+
+        }
+
     }
 
-    printf(" [DEBUG] Terminamos el test de Gelman-Rubin. Resultado: %.2f\n", Rhat);
+    // Mensaje de error
+    printf("\033[1A\033[2K \033[31m[GELMAN-RUBIN]\033[37m Burn-in incompleto.  Iteración: %3d     R-hat: %.3f.\n", MAXITER, Rhat);
 
 }
