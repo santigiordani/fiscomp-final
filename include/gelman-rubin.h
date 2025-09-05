@@ -29,14 +29,14 @@ double gr_get_Rhat(double **cadenas, int m, int n);
  * @brief  Generamos muestras con una familia de modelos hasta que el R-hat de
  *         Gelman-Rubin se encuentre por debajo de una tolerancia.
  * 
- * @param  modelos Puntero a un arreglo de modelos (ya inicializados)
+ * @param  mods Puntero a un arreglo de punteros a modelos (ya inicializados)
  * @param  m Número de modelos en el arreglo
  * @param  sweep Función con la cual actualizar los estados de los modelos
  * @param  o Observable a calcular sobre cada muestra
  * @param  n Número de muestras por cadena para calcular R-hat
  * @param  tol Tolerancia
  */
-void rg_init(modelo *modelos, int m, void (*sweep)(modelo *), observable o, int n, double tol);
+void gr_init(modelo **mods, int m, void (*sweep)(modelo *), observable o, int n, double tol);
 
 
 #endif // GR_H
