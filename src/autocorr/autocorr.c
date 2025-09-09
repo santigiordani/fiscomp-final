@@ -26,19 +26,6 @@ static int linear_regression(const double *data, int n, double *a, double *b);
  */
 static int get_autocorr(const double *data, int n, double *autocorr);
 
-/**
- * @brief Guardamos un arreglo en un archivo
- * 
- * @note  En caso de que haya demasiados términos no negativos en A(k), lanzamos
- *        una advertencia, pues esto podría significar que las estimaciones que
- *        se hagan usando autocorr no serán suficientemente precisas
- *
- * @param filename Nombre del archivo
- * @param data Arreglo a guardar
- * @param n Longitud de data
- */
-static void save(char *filename, const double *data, int n);
-
 
 void get_tau(const double *data, int n, double *tau_int, double *tau_exp) {
     
@@ -132,21 +119,3 @@ static int linear_regression(const double *data, int n, double *a, double *b) {
     return 0;
 
 }
-
-static void save(char *filename, const double *data, int n) {
-    
-    // Abrimos el archivo
-    FILE *f = fopen(filename, "w");
-    if (f == NULL) {
-        fprintf(stderr, " [ERROR] No se pudo abrir el archivo %s.\n", filename);
-        return;
-    }
-
-    // Guardamos los datos
-    for (int i = 0; i < n; ++i) fprintf(f, "%.4f\n", data[i]);
-
-    // Cerramos el archivo
-    fclose(f);
-
-}
-
