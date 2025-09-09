@@ -13,79 +13,60 @@
  * 
  * @return 0 si tiene exito, 1 si no
  */
-int linear_regression(const double *data, int n, double *a, double *b);
+static int linear_regression(const double *data, int n, double *a, double *b);
 
-static void save(char *filename, const double *data, int n) {
-    FILE *f = fopen(filename, "w");
-    for (int i = 0; i < n; ++i) {
-        fprintf(f, "%.4f\n", data[i]);
-    }
-    fclose(f);
-}
+/**
+ * @brief  Calculamos la autocorrelación A(k) de un arreglo de datos
+ *
+ * @param  data Arreglo de datos
+ * @param  n Longitud de data
+ * @param  autocorr Arreglo donde guardar los resultados
+ * 
+ * @return Longitud del subarreglo de autocorr que contiene entradas positivas
+ */
+static int get_autocorr(const double *data, int n, double *autocorr);
 
-double get_tau_int(const double *data, int n, int max_lag) {
+/**
+ * @brief Guardamos un arreglo en un archivo
+ * 
+ * @note  En caso de que haya demasiados términos no negativos en A(k), lanzamos
+ *        una advertencia, pues esto podría significar que las estimaciones que
+ *        se hagan usando autocorr no serán suficientemente precisas
+ *
+ * @param filename Nombre del archivo
+ * @param data Arreglo a guardar
+ * @param n Longitud de data
+ */
+static void save(char *filename, const double *data, int n);
+
+
+void get_tau(const double *data, int n, double *tau_int, double *tau_exp) {
     
-    // Calculamos la media
-    double media = 0;
-    for (int i = 0; i < n; ++i) media += data[i];
-    media /= (double) n;
+    // Calculamos la autocorrelación
+    double autocorr[n];
+    int m = get_autocorr(data, n, autocorr);
 
-    // Calculamos la varianza
-    double err, var = 0;
-    for (int i = 0; i < n; ++i) {
-        err = data[i] - media;
-        var += err * err;
-    }
-    var /= (double) (n - 1);
+    // Calculamos tau_int
+    *tau_int = 0.5;
+    for (int i = 0; i < m; ++i) *tau_int += autocorr[i];
 
-    // Caso degenerado
-    if (var <= 0.0) return 0.5;
+    // Tomamos lograitmo de las autocorrelaciones
+    double log_autocorr[m];
+    for (int i = 0; i < m; ++i) log_autocorr[i] = log(autocorr[i]);
 
-    // Sumamos las autocorrelaciones A(k) para k <= max_lag
-    double cov, rho, tau = 0.5;
-    for (int k = 1; k <= max_lag; ++k) {
-
-        // Calculamos la covarianza
-        cov = 0.0;
-        for (int t = 0; t < n - k; ++t) {
-            cov += (data[t] - media) * (data[t + k] - media);
-        }
-        cov /= (double) (n - k);
-
-        // Normalizamos la covarianza para obtener la autocorrelación
-        rho = cov / var;
-
-        // Si la autocorrelación es negativa salimos
-        if (rho <= 0.0) break;
-
-        // Sumamos
-        tau += rho;
-
+    // Hacemos regresión lineal (log A(k) = c - k/tau_exp)
+    double a = 0, b = 0;
+    if (linear_regression(log_autocorr, m, &a, &b)) {
+        fprintf(stderr, " [ERROR] Algo salió mal en la regresión lineal.\n");
+        return;
     }
 
-    return tau;
+    // Guardamos tau_exp = -1 / a
+    *tau_exp = - 1 / a;
 
 }
 
-double get_tau_int_adapt(const double *data, int n) {
-
-    // Inicialmente estimamos con lag_max = n / 10
-    int lag_max = n / 10;
-    double tau = get_tau_int(data, n, lag_max);
-
-    printf(" [DEBUG] Primer tiempo de autocorrelación: %f.\n", tau);
-
-    // A partir de esto, proponemos un nuevo lag_max y recalculamos
-    int new_lag = (int) fmin(n / 2, ceil(10 * tau));
-    if (new_lag > lag_max) tau = get_tau_int(data, n, new_lag);
-
-    printf(" [DEBUG] Cambiamos el lag_max a %d.\n", new_lag);
-
-    return tau;
-
-}
-
-int get_autocorr(const double *data, int n, double *autocorr) {
+static int get_autocorr(const double *data, int n, double *autocorr) {
 
     // Calculamos la media
     double media = 0.0;
@@ -99,20 +80,15 @@ int get_autocorr(const double *data, int n, double *autocorr) {
         var += d * d;
     }
 
-    // En caso de que la serie sea constante
-    // if (var == 0.0) {
-    //     autocorr[0] = 1.0;
-    //    for (int k = 1; k < n; k++) autocorr[k] = 0.0;
-    //    return;
-    // }
-
     // Calculamos autocorrelaciones
     for (int k = 0; k < n; ++k) {
-        double num = 0.0;
+
+        double sum = 0.0;
         for (int t = 0; t < n - k; t++) {
-            num += (data[t] - media) * (data[t + k] - media);
+            sum += (data[t] - media) * (data[t + k] - media);
         }
-        autocorr[k] = num / var;
+        autocorr[k] = sum / var;
+
     }
 
     // Buscamos el primer índice negativo y lo devolvemos
@@ -124,42 +100,14 @@ int get_autocorr(const double *data, int n, double *autocorr) {
         }
     }
 
+    // En caso de que m sea bastante grande
+    if (m >= n / 2) fprintf(stderr, " [WARNING] %d de %d términos son no negativos en la autocorrelación. Recomendamos aumentar n.", m, n);
+
     return m;
 
 }
 
-
-double get_tau_exp(const double *data, int n) {
-
-    save("data.txt", data, n);
-
-    // Calculamos la autocorrelación
-    double autocorr[n];
-    int m = get_autocorr(data, n, autocorr);
-
-    save("autocorr.txt", autocorr, m);
-
-    // Tomamos logaritmo de los datos
-    double log_autocorr[m];
-    for (int i = 0; i < m; ++i) log_autocorr[i] = log(autocorr[i]);
-
-    save("log_autocorr.txt", log_autocorr, m);
-
-    // Hacemos regresión lineal (log A(k) = c - k/tau_exp)
-    double a = 0, b = 0;
-    if (linear_regression(log_autocorr, m, &a, &b)) {
-        fprintf(stderr, " [ERROR] Algo salió mal en la regresión lineal.\n");
-        return 0;
-    }
-
-    // Devolvemos tau_exp = -1 / a
-    return - 1 / a;
-
-}
-
-
-
-int linear_regression(const double *data, int n, double *a, double *b) {
+static int linear_regression(const double *data, int n, double *a, double *b) {
 
     // Calculamos las medias
     double media_x = (n - 1) / 2.0;
@@ -184,3 +132,21 @@ int linear_regression(const double *data, int n, double *a, double *b) {
     return 0;
 
 }
+
+static void save(char *filename, const double *data, int n) {
+    
+    // Abrimos el archivo
+    FILE *f = fopen(filename, "w");
+    if (f == NULL) {
+        fprintf(stderr, " [ERROR] No se pudo abrir el archivo %s.\n", filename);
+        return;
+    }
+
+    // Guardamos los datos
+    for (int i = 0; i < n; ++i) fprintf(f, "%.4f\n", data[i]);
+
+    // Cerramos el archivo
+    fclose(f);
+
+}
+

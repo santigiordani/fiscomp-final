@@ -11,7 +11,7 @@
 // Funciones de prueba
 void test_sweep(double T, int L);
 void test_gr(double T, int L, int m, int n, double tol);
-void test_tau_int(double T, int L, int m, int n, double tol, int n_data);
+void test_tau(double T, int L, int m, int n, double tol, int n_data);
 
 /*
     En un futuro (cercano) me gustaría armar un modulo a parte con las pruebas
@@ -34,7 +34,7 @@ int main() {
     int n_data = 1024;      // Número de muestras para calcular tau_int
 
     // Test
-    test_tau_int(T, L, m, n, tol, n_data);
+    test_tau(T, L, m, n, tol, n_data);
 
     return 0;
 
@@ -53,8 +53,7 @@ int main() {
  * @param tol Tolerancia para el Rhat (debe ser > 1)
  * @param n_data Número de muestras para calcular tau_int
  */
-void test_tau_int(double T, int L, int m, int n, double tol,
-                  int n_data) {
+void test_tau(double T, int L, int m, int n, double tol, int n_data) {
 
     printf(" [TEST] Creamos los modelos.\n");
 
@@ -84,31 +83,11 @@ void test_tau_int(double T, int L, int m, int n, double tol,
 
     printf(" [TEST] Tomamos una muestra de tamaño %d.\n", n_data);
 
-    /*
-        Sería mas útil esta parte cambiarla por un guardado en algún archivo,
-        así podemos graficarlo después.
-    */
-
-    // Mostramos en pantalla la data
-    for (int i = 0; i < n_data; ++i) {
-        
-        // Salto de linea
-        if (!(i % 10)) printf("\n [TEST] ");
-
-        // Mostramos un dato
-        printf("%6.2f  ", data[i]);
-
-    }
-    printf("\n");
-
     // Calculamos el tau_int
-    double tau_int = get_tau_int_adapt(data, n_data);
+    double tau_int, tau_exp;
+    get_tau(data, n_data, &tau_int, &tau_exp);
 
     printf(" [TEST] El tiempo integrado de autocorrelación es %f.\n", tau_int);
-
-    // Calculamos el tau_exp
-    double tau_exp = get_tau_exp(data, n_data);
-
     printf(" [TEST] El tiempo exponencial de autocorrelación es %f.\n", tau_exp);
 
     // Liberamos el último modelo
