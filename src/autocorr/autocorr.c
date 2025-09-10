@@ -10,10 +10,8 @@
  * @param  n Longitud de data
  * @param  a Puntero para guardar el coeficiente principal
  * @param  b Puntero para guardar la ordenada al origan
- * 
- * @return 0 si tiene exito, 1 si no
  */
-static int linear_regression(const double *data, int n, double *a, double *b);
+static void linear_regression(const double *data, int n, double *a, double *b);
 
 /**
  * @brief  Calculamos la autocorrelación A(k) de un arreglo de datos
@@ -27,26 +25,23 @@ static int linear_regression(const double *data, int n, double *a, double *b);
 static int get_autocorr(const double *data, int n, double *autocorr);
 
 
-void get_tau(const double *data, int n, double *tau_int, double *tau_exp) {
+void get_tau(const double *data, int n, double *tau_int, double *tau_exp, int *m) {
     
     // Calculamos la autocorrelación
     double autocorr[n];
-    int m = get_autocorr(data, n, autocorr);
+    *m = get_autocorr(data, n, autocorr);
 
     // Calculamos tau_int
     *tau_int = 0.5;
-    for (int i = 0; i < m; ++i) *tau_int += autocorr[i];
+    for (int i = 0; i < *m; ++i) *tau_int += autocorr[i];
 
     // Tomamos lograitmo de las autocorrelaciones
-    double log_autocorr[m];
-    for (int i = 0; i < m; ++i) log_autocorr[i] = log(autocorr[i]);
+    double log_autocorr[*m];
+    for (int i = 0; i < *m; ++i) log_autocorr[i] = log(autocorr[i]);
 
     // Hacemos regresión lineal (log A(k) = c - k/tau_exp)
     double a = 0, b = 0;
-    if (linear_regression(log_autocorr, m, &a, &b)) {
-        fprintf(stderr, " [ERROR] Algo salió mal en la regresión lineal.\n");
-        return;
-    }
+    linear_regression(log_autocorr, *m, &a, &b);
 
     // Guardamos tau_exp = -1 / a
     *tau_exp = - 1 / a;
@@ -94,7 +89,7 @@ static int get_autocorr(const double *data, int n, double *autocorr) {
 
 }
 
-static int linear_regression(const double *data, int n, double *a, double *b) {
+static void linear_regression(const double *data, int n, double *a, double *b) {
 
     // Calculamos las medias
     double media_x = (n - 1) / 2.0;
@@ -115,7 +110,5 @@ static int linear_regression(const double *data, int n, double *a, double *b) {
 
     *a = num / den;
     *b = media_y - (*a) * media_x;
-
-    return 0;
 
 }

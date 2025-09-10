@@ -96,6 +96,16 @@ void gr_init(modelo **mods, int m, void (*sweep)(modelo *), observable o, int n,
 
             // Mostramos el resultado final
             printf("\033[1A\033[2K \033[32m[GELMAN-RUBIN]\033[37m Burn-in completo.    Iteración: %3d     R-hat: %.3f.\n", k + 1, Rhat);
+
+            // Guardamos datos
+            for (int i = 0; i < m; ++i) {
+                mods[i]->mon.chain_num = m;
+                mods[i]->mon.chain_size = n;
+                mods[i]->mon.gr_iter = k + 1;
+                mods[i]->mon.Rhat = Rhat;
+            }
+
+            // Terminamos
             return;
 
         } else {
@@ -109,5 +119,13 @@ void gr_init(modelo **mods, int m, void (*sweep)(modelo *), observable o, int n,
 
     // Mensaje de error
     printf("\033[1A\033[2K \033[31m[GELMAN-RUBIN]\033[37m Burn-in incompleto.  Iteración: %3d     R-hat: %.3f.\n", MAXITER, Rhat);
+
+    // Guardamos datos
+    for (int i = 0; i < m; ++i) {
+        mods[i]->mon.chain_num = m;
+        mods[i]->mon.chain_size = n;
+        mods[i]->mon.gr_iter = MAXITER;
+        mods[i]->mon.Rhat = Rhat;
+    }
 
 }

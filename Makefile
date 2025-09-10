@@ -9,7 +9,7 @@ OBJ_DIR := bin/obj
 BIN_DIR := bin
 
 # Ejecutable final
-TARGET := $(BIN_DIR)/app
+TARGET := $(BIN_DIR)/app_g
 
 # Buscar todos los .c
 SRCS := $(shell find $(SRC_DIR) -name '*.c')

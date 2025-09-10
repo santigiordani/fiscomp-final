@@ -3,6 +3,7 @@
 
 
 #include "mtran.h"
+#include "monitor.h"
 
 
 /**
@@ -13,6 +14,7 @@ typedef struct {
     double T;           // Temperatura (adimensionalizada)
     int L;              // Lado de la matriz
     short *mat;         // Matriz de espines
+    monitor_data mon;   // Datos para monitorear Rhat, tau_int y tau_exp
 } modelo;
 
 /**
