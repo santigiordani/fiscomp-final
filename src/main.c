@@ -7,7 +7,14 @@ int main() {
         Parámetros del modelo
 
         En un futuro (cercano) quiero poder leer estos parametros de un archivo
-        de configuración, o que el usuario los entre por consola.
+        de configuración, o que el usuario los entre por consola. Ahora mismo,
+        si queremos hacer pruebas con parámetros diferentes tenemos que
+        - Cambiar los parámetros aca abajo
+        - Cambiar filename (sino el nuevo test sobreescribiría los resultados
+          de tests anteriores)
+        - Ir a src/tests/test.c y cambiar, en cas de ser necesario, el algoritmo
+          que se usa para generar las muestras
+        - Recompilar el programa
     */
 
     double T = 2.6;                     // Temperatura (adimensionalizada)
@@ -21,26 +28,6 @@ int main() {
 
     // Test
     test(T, L, m, n, tol, n_data, n_mod, filename);
-
-    /*
-        T = 2.5
-        L = 16
-        m = 8
-        n = 1024
-        tol = 1.05
-        n_data = 1024
-        n_mod = 800
-        Con estos parámetros, Gibbs tardó   3m2.205s
-                                            3m5.306s
-                                            3m16.233s
-
-        Con estos parámetros, Metrópolis    3m20.290s
-                                            3m0.828s
-                                            3m2.078s
-
-        Ahora vamos a estudiar otras cosas, porque la temperatura crítica es
-        algo así como 2.2676.
-    */
 
     return 0;
 
