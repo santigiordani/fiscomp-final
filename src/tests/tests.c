@@ -59,7 +59,7 @@ void test(double T, int L, int m, int n, double tol, int n_data, int n_mod, char
         // Llenamos un buffer con data del modelo
         double data[n_data];
         for (int j = 0; j < n_data; ++j) {
-            modelo_gsweep(mods[i]); // .................................................... <- Acá para cambiar el tipo de sweep!
+            modelo_msweep(mods[i]); // .................................................... <- Acá para cambiar el tipo de sweep!
             data[j] = modelo_get_m(mods[i]);
         }
 
